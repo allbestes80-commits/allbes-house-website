@@ -84,7 +84,8 @@
   .product .photo img{width:100%;height:100%;object-fit:contain;}
   .product .body{padding:16px 16px 18px;display:flex;flex-direction:column;flex:1;}
   .product h4{font-size:15.5px;margin-bottom:4px;font-family:'Fraunces',serif;}
-  .product .desc{font-size:12.5px;color:var(--muted);margin-bottom:11px;line-height:1.45;height:34.8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .product .desc{font-size:12.5px;color:var(--muted);margin-bottom:11px;line-height:1.45;height:34.8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;cursor:pointer;}
+  .product .desc.expanded{height:auto;-webkit-line-clamp:unset;}
   .product .price{font-family:'Fraunces',serif;font-size:18px;color:var(--sage-deep);margin-bottom:13px;margin-top:auto;}
   .product .stock{font-size:11.5px;color:var(--sage-deep);margin-bottom:10px;}
   .product .stock.out{color:#b3543f;}
@@ -623,10 +624,15 @@ function inferIcon(name){
   if(n.includes('oil') || n.includes('perfum') || n.includes('parfum')) return 'lavender';
   return 'cream';
 }
+function firstPara(desc){
+  return desc ? desc.split(/\n\s*\n/)[0].trim() : '';
+}
 function shortDesc(desc){
-  if(!desc) return '';
-  const firstPara = desc.split(/\n\s*\n/)[0].trim();
-  return firstPara.length > 90 ? firstPara.slice(0,90).trim() + '…' : firstPara;
+  const p = firstPara(desc);
+  return p.length > 90 ? p.slice(0,90).trim() + '…' : p;
+}
+function escapeAttr(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
 }
 
 async function loadProductsFromSheet(){
@@ -652,6 +658,7 @@ async function loadProductsFromSheet(){
           price: priceRaw ? Number(priceRaw) : null,
           stock: stockRaw === '' ? null : Number(stockRaw), // null = 表格没填，先当作"现货不限量"处理，不显示库存标签
           desc: shortDesc(descRaw) + (size ? (shortDesc(descRaw) ? ' · ' : '') + size : ''),
+          descFull: firstPara(descRaw) + (size ? (firstPara(descRaw) ? ' · ' : '') + size : ''),
           icon: inferIcon(name),
           imageUrl,
           category,
@@ -666,6 +673,10 @@ async function loadProductsFromSheet(){
   renderProducts();
 }
 
+function toggleDesc(el){
+  const expanded = el.classList.toggle('expanded');
+  el.textContent = expanded ? el.dataset.full : el.dataset.short;
+}
 function iconFallback(imgEl, iconKey){
   if(imgEl && imgEl.parentElement) imgEl.parentElement.innerHTML = icons[iconKey] || '';
 }
@@ -713,7 +724,7 @@ function renderProducts(){
       <div class="photo">${photoInner}</div>
       <div class="body">
         <h4>${p.name}</h4>
-        <div class="desc">${p.desc}</div>
+        <div class="desc" data-short="${escapeAttr(p.desc)}" data-full="${escapeAttr(p.descFull)}" onclick="toggleDesc(this)">${p.desc}</div>
         <div class="price">${priceLabel}</div>
         ${stockLabel ? `<div class="stock ${outOfStock?'out':''}">${stockLabel}</div>` : ''}
         <div class="product-actions">
