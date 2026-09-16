@@ -144,6 +144,8 @@
   .pay-opt{border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;font-size:13px;cursor:pointer;color:var(--muted);font-weight:600;}
   .pay-opt.selected{border-color:var(--sage-deep);color:var(--sage-deep);background:var(--lav-soft);}
   .pay-detail{background:var(--lav-soft);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--ink);margin-bottom:16px;line-height:1.8;white-space:pre-line;}
+  .optin-field{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:var(--muted);margin-bottom:18px;cursor:pointer;}
+  .optin-field input{margin-top:2px;flex:none;}
 
   .confirm-box{display:none;background:var(--lav-soft);border:1px solid var(--sage-deep);border-radius:10px;padding:16px 18px;margin-top:16px;font-size:14px;color:var(--ink);}
   .confirm-box b{font-family:'Fraunces',serif;font-size:16px;color:var(--sage-deep);}
@@ -301,6 +303,11 @@
           <div class="pay-detail" id="g-pay-detail" data-i18n="checkout.payHint"></div>
         </div>
 
+        <label class="optin-field">
+          <input type="checkbox" id="g-optin">
+          <span data-i18n="checkout.optIn"></span>
+        </label>
+
         <button class="btn-primary" onclick="submitGoodsOrder()" data-i18n="checkout.confirm"></button>
         <div class="confirm-box" id="g-confirm"></div>
       </div>
@@ -348,6 +355,19 @@ function logOrderToSheet(payload){
       method:'POST',
       mode:'no-cors', // Apps Script 不返回 CORS 头，用 no-cors 保证请求能发出去，但拿不到返回内容
       body: JSON.stringify(payload)
+    }).catch(()=>{});
+  }catch(err){}
+}
+// 【新增】"客户跟进"表的 Apps Script 网址，用来记录客户是否同意接收 WhatsApp 推广消息，
+// 给以后的自动追单功能用。部署好新的 Apps Script 后把网址填在这里。
+const FOLLOWUP_LOG_URL = '';
+function logOptIn(phone, name, optIn){
+  if (!FOLLOWUP_LOG_URL || !phone) return;
+  try{
+    fetch(FOLLOWUP_LOG_URL, {
+      method:'POST',
+      mode:'no-cors',
+      body: JSON.stringify({ phone, name, stage:'已下单', optIn }),
     }).catch(()=>{});
   }catch(err){}
 }
@@ -423,7 +443,7 @@ const I18N = {
       trust3:{b:'专属客服',s:'1 个工作日内联系'},
     },
     goods:{title:'植萃精选',subtitle:'每一件都来自天然植物萃取，加入购物袋即可直接下单结算。',total:'合计',checkout:'去结算',empty:'购物袋是空的，先去挑几件喜欢的吧。'},
-    checkout:{title:'填写收货信息',name:'收货人姓名',phone:'联系电话',phoneHint:'请填写可以联系到的 WhatsApp 号码，例如：0123456789',address:'收货地址',city:'城市',postcode:'邮政编码',state:'州属',payLabel:'选择付款方式',payHint:'请选择一种付款方式查看详情。',confirm:'确认下单'},
+    checkout:{title:'填写收货信息',name:'收货人姓名',phone:'联系电话',phoneHint:'请填写可以联系到的 WhatsApp 号码，例如：0123456789',address:'收货地址',city:'城市',postcode:'邮政编码',state:'州属',payLabel:'选择付款方式',payHint:'请选择一种付款方式查看详情。',optIn:'我同意接收 Allbes House 通过 WhatsApp 发送的优惠信息（可随时回复"退订"取消）',confirm:'确认下单'},
     pay:{bank:'银行转账',
       bankDetail:'请转账至：\nAllbes Trading\n银行：Public Bank\n账号：3816700111\n转账完成后，请把付款截图发到我们的 WhatsApp 确认，谢谢！',
       tngDetail:"请使用 Touch 'n Go eWallet 扫描收款码完成付款：\n📱 [二维码占位，正式上线需替换为真实收款码]\n付款完成后，请把付款截图发到我们的 WhatsApp 确认，谢谢！"},
@@ -460,7 +480,7 @@ const I18N = {
       trust3:{b:'Dedicated Support',s:'Reply within 1 business day'},
     },
     goods:{title:'Botanical Selection',subtitle:'Every item is derived from natural botanical extracts — add to bag and check out directly.',total:'Total',checkout:'Checkout',empty:'Your bag is empty — pick a few favorites first.'},
-    checkout:{title:'Shipping Details',name:'Recipient Name',phone:'Phone Number',phoneHint:'Please provide a reachable WhatsApp number, e.g. 0123456789',address:'Delivery Address',city:'City',postcode:'Postcode',state:'State',payLabel:'Choose Payment Method',payHint:'Select a payment method to see details.',confirm:'Confirm Order'},
+    checkout:{title:'Shipping Details',name:'Recipient Name',phone:'Phone Number',phoneHint:'Please provide a reachable WhatsApp number, e.g. 0123456789',address:'Delivery Address',city:'City',postcode:'Postcode',state:'State',payLabel:'Choose Payment Method',payHint:'Select a payment method to see details.',optIn:'I agree to receive promotional messages from Allbes House via WhatsApp (reply "STOP" anytime to opt out)',confirm:'Confirm Order'},
     pay:{bank:'Bank Transfer',
       bankDetail:'Please transfer to:\nAllbes Trading\nBank: Public Bank\nAccount: 3816700111\nAfter transferring, please send a screenshot of your payment to our WhatsApp for confirmation. Thank you!',
       tngDetail:"Scan the QR code with your Touch 'n Go eWallet to pay:\n📱 [QR placeholder — replace with your real code at launch]\nAfter paying, please send a screenshot of your payment to our WhatsApp for confirmation. Thank you!"},
@@ -497,7 +517,7 @@ const I18N = {
       trust3:{b:'Sokongan Peribadi',s:'Balasan dalam 1 hari bekerja'},
     },
     goods:{title:'Pilihan Tumbuhan',subtitle:'Setiap produk berasal daripada ekstrak tumbuhan semula jadi — tambah ke beg dan buat pembayaran terus.',total:'Jumlah',checkout:'Ke Pembayaran',empty:'Beg anda kosong — pilih beberapa produk kegemaran dahulu.'},
-    checkout:{title:'Butiran Penghantaran',name:'Nama Penerima',phone:'Nombor Telefon',phoneHint:'Sila isikan nombor WhatsApp yang boleh dihubungi, contohnya: 0123456789',address:'Alamat Penghantaran',city:'Bandar',postcode:'Poskod',state:'Negeri',payLabel:'Pilih Kaedah Pembayaran',payHint:'Pilih kaedah pembayaran untuk lihat butiran.',confirm:'Sahkan Pesanan'},
+    checkout:{title:'Butiran Penghantaran',name:'Nama Penerima',phone:'Nombor Telefon',phoneHint:'Sila isikan nombor WhatsApp yang boleh dihubungi, contohnya: 0123456789',address:'Alamat Penghantaran',city:'Bandar',postcode:'Poskod',state:'Negeri',payLabel:'Pilih Kaedah Pembayaran',payHint:'Pilih kaedah pembayaran untuk lihat butiran.',optIn:'Saya bersetuju menerima mesej promosi daripada Allbes House melalui WhatsApp (balas "STOP" untuk berhenti langgan bila-bila masa)',confirm:'Sahkan Pesanan'},
     pay:{bank:'Pindahan Bank',
       bankDetail:'Sila pindahkan ke:\nAllbes Trading\nBank: Public Bank\nAkaun: 3816700111\nSelepas pindahan, sila hantar tangkapan skrin pembayaran ke WhatsApp kami untuk pengesahan. Terima kasih!',
       tngDetail:"Imbas kod QR dengan Touch 'n Go eWallet untuk membayar:\n📱 [Kod QR sementara — gantikan dengan kod sebenar semasa pelancaran]\nSelepas membayar, sila hantar tangkapan skrin pembayaran ke WhatsApp kami untuk pengesahan. Terima kasih!"},
@@ -807,6 +827,7 @@ function submitGoodsOrder(){
     payMethod: goodsPay
   });
   sendOrderNotify(name, phone, orderNo);
+  logOptIn(phone, name, document.getElementById('g-optin').checked);
   const box = document.getElementById('g-confirm');
   box.style.display='block';
   box.innerHTML = t('submitGoods')(name, orderNo, goodsPay) + `<br><span style="cursor:pointer;text-decoration:underline;color:var(--sage-deep)" onclick="goToTrack('${orderNo}')">${t('track.viewTrack')}</span>`;
