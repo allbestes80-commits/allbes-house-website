@@ -8,7 +8,7 @@
 <meta name="hosting-provider" content="Netlify">
 <meta name="netlify-deploy" content="https://netlify.new/?utm_campaign=ai-legible&amp;utm_source=meta&amp;utm_medium=referral&amp;utm_id=7a5730ac-6438-4650-8cda-dcc703c6007f">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Allbes House</title>
+<title>Lumee Store</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -218,7 +218,7 @@
 
 <header>
   <div class="wrap nav">
-    <div class="brand">Allbes <span>House</span></div>
+    <div class="brand">Lumee <span>Store</span></div>
     <div class="tabs">
       <button class="tab-btn active" data-page="home" data-i18n="nav.home"></button>
       <button class="tab-btn" data-page="goods" data-i18n="nav.goods"></button>
@@ -382,9 +382,9 @@ function sendOrderNotify(name, phone, orderNo){
   }catch(err){}
 }
 const WA_GREETING = {
-  zh:'您好，我想了解一下 Allbes House 的产品/服务',
-  en:"Hi, I'd like to ask about Allbes House products/services",
-  ms:'Hai, saya ingin bertanya tentang produk/perkhidmatan Allbes House',
+  zh:'您好，我想了解一下 Lumee Store 的产品/服务',
+  en:"Hi, I'd like to ask about Lumee Store products/services",
+  ms:'Hai, saya ingin bertanya tentang produk/perkhidmatan Lumee Store',
 };
 const WA_TOOLTIP = {zh:'WhatsApp 咨询',en:'Chat on WhatsApp',ms:'Chat di WhatsApp'};
 const ASK_TEXT = {
@@ -398,9 +398,9 @@ const STOCK_TEXT = {
   ms:{left:(n)=>`${n} unit tersedia`, out:'Kehabisan stok'},
 };
 const SHARE_TEXT = {
-  zh:'来看看 Allbes House 的植萃好物和智能客服服务～',
-  en:'Check out Allbes House — botanical goods and AI customer service!',
-  ms:'Lihat Allbes House — produk tumbuhan & perkhidmatan khidmat pelanggan AI!',
+  zh:'来看看 Lumee Store 的植萃好物和智能客服服务～',
+  en:'Check out Lumee Store — botanical goods and AI customer service!',
+  ms:'Lihat Lumee Store — produk tumbuhan & perkhidmatan khidmat pelanggan AI!',
 };
 const SHARE_COPIED = {
   zh:'链接已复制，快去分享给朋友吧！',
@@ -410,7 +410,7 @@ const SHARE_COPIED = {
 function shareSite(){
   const url = location.href;
   if(navigator.share){
-    navigator.share({title:'Allbes House', text:SHARE_TEXT[lang], url}).catch(()=>{});
+    navigator.share({title:'Lumee Store', text:SHARE_TEXT[lang], url}).catch(()=>{});
   } else if(navigator.clipboard){
     navigator.clipboard.writeText(url).then(()=>{
       alert(SHARE_COPIED[lang]);
@@ -433,7 +433,7 @@ const I18N = {
   zh:{
     nav:{home:'首页',goods:'植萃精选',chatbot:'智能客服服务',track:'物流查询',cart:'购物袋'},
     home:{
-      kicker:'ALLBES HOUSE · 植物萃取 生活好物',
+      kicker:'LUMEE STORE · 植物萃取 生活好物',
       h1:'来自普罗旺斯的植萃呵护，给肌肤最温柔的对待',
       p:'严选乳木果、薰衣草、马鞭草、杏仁等天然植萃护肤好物，安心购物，让每一次呵护都值得期待。',
       card1:{tag:'植萃精选',title:'身体 · 护手 · 香氛',desc:'正品代购/经销好物，支持多种付款方式，下单后可随时查看物流进度。',go:'进入商品页 →'},
@@ -443,7 +443,7 @@ const I18N = {
       trust3:{b:'专属客服',s:'1 个工作日内联系'},
     },
     goods:{title:'植萃精选',subtitle:'每一件都来自天然植物萃取，加入购物袋即可直接下单结算。',total:'合计',checkout:'去结算',empty:'购物袋是空的，先去挑几件喜欢的吧。'},
-    checkout:{title:'填写收货信息',name:'收货人姓名',phone:'联系电话',phoneHint:'请填写可以联系到的 WhatsApp 号码，例如：0123456789',address:'收货地址',city:'城市',postcode:'邮政编码',state:'州属',payLabel:'选择付款方式',payHint:'请选择一种付款方式查看详情。',optIn:'我同意接收 Allbes House 通过 WhatsApp 发送的优惠信息（可随时回复"退订"取消）',confirm:'确认下单'},
+    checkout:{title:'填写收货信息',name:'收货人姓名',phone:'联系电话',phoneHint:'请填写可以联系到的 WhatsApp 号码，例如：0123456789',address:'收货地址',city:'城市',postcode:'邮政编码',state:'州属',payLabel:'选择付款方式',payHint:'请选择一种付款方式查看详情。',optIn:'我同意接收 Lumee Store 通过 WhatsApp 发送的优惠信息（可随时回复"退订"取消）',confirm:'确认下单'},
     pay:{bank:'银行转账',
       bankDetail:'请转账至：\nAllbes Trading\n银行：Public Bank\n账号：3816700111\n转账完成后，请把付款截图发到我们的 WhatsApp 确认，谢谢！',
       tngDetail:"请使用 Touch 'n Go eWallet 扫描收款码完成付款：\n📱 [二维码占位，正式上线需替换为真实收款码]\n付款完成后，请把付款截图发到我们的 WhatsApp 确认，谢谢！"},
@@ -470,7 +470,7 @@ const I18N = {
   en:{
     nav:{home:'Home',goods:'Botanicals',chatbot:'Chatbot Service',track:'Track Order',cart:'Bag'},
     home:{
-      kicker:'ALLBES HOUSE · BOTANICAL LIVING ESSENTIALS',
+      kicker:'LUMEE STORE · BOTANICAL LIVING ESSENTIALS',
       h1:'Provence-inspired botanical care, gently tending to your skin',
       p:'Carefully selected shea butter, lavender, verbena and almond skincare — worry-free shopping, care worth looking forward to.',
       card1:{tag:'Botanicals',title:'Body · Hand Care · Fragrance',desc:'Authentic sourced products, multiple payment options, track your order anytime after checkout.',go:'Shop now →'},
@@ -480,7 +480,7 @@ const I18N = {
       trust3:{b:'Dedicated Support',s:'Reply within 1 business day'},
     },
     goods:{title:'Botanical Selection',subtitle:'Every item is derived from natural botanical extracts — add to bag and check out directly.',total:'Total',checkout:'Checkout',empty:'Your bag is empty — pick a few favorites first.'},
-    checkout:{title:'Shipping Details',name:'Recipient Name',phone:'Phone Number',phoneHint:'Please provide a reachable WhatsApp number, e.g. 0123456789',address:'Delivery Address',city:'City',postcode:'Postcode',state:'State',payLabel:'Choose Payment Method',payHint:'Select a payment method to see details.',optIn:'I agree to receive promotional messages from Allbes House via WhatsApp (reply "STOP" anytime to opt out)',confirm:'Confirm Order'},
+    checkout:{title:'Shipping Details',name:'Recipient Name',phone:'Phone Number',phoneHint:'Please provide a reachable WhatsApp number, e.g. 0123456789',address:'Delivery Address',city:'City',postcode:'Postcode',state:'State',payLabel:'Choose Payment Method',payHint:'Select a payment method to see details.',optIn:'I agree to receive promotional messages from Lumee Store via WhatsApp (reply "STOP" anytime to opt out)',confirm:'Confirm Order'},
     pay:{bank:'Bank Transfer',
       bankDetail:'Please transfer to:\nAllbes Trading\nBank: Public Bank\nAccount: 3816700111\nAfter transferring, please send a screenshot of your payment to our WhatsApp for confirmation. Thank you!',
       tngDetail:"Scan the QR code with your Touch 'n Go eWallet to pay:\n📱 [QR placeholder — replace with your real code at launch]\nAfter paying, please send a screenshot of your payment to our WhatsApp for confirmation. Thank you!"},
@@ -507,7 +507,7 @@ const I18N = {
   ms:{
     nav:{home:'Laman Utama',goods:'Produk Tumbuhan',chatbot:'Perkhidmatan Chatbot',track:'Jejak Pesanan',cart:'Beg'},
     home:{
-      kicker:'ALLBES HOUSE · KEPERLUAN HIDUP BERASASKAN TUMBUHAN',
+      kicker:'LUMEE STORE · KEPERLUAN HIDUP BERASASKAN TUMBUHAN',
       h1:'Penjagaan tumbuhan berinspirasikan Provence, lembut untuk kulit anda',
       p:'Pilihan teliti produk penjagaan kulit shea, lavender, verbena dan badam — membeli-belah tanpa risiko, penjagaan yang bernilai.',
       card1:{tag:'Produk Tumbuhan',title:'Badan · Penjagaan Tangan · Wangian',desc:'Produk tulen, pelbagai kaedah pembayaran, jejak pesanan anda bila-bila masa selepas checkout.',go:'Beli sekarang →'},
@@ -517,7 +517,7 @@ const I18N = {
       trust3:{b:'Sokongan Peribadi',s:'Balasan dalam 1 hari bekerja'},
     },
     goods:{title:'Pilihan Tumbuhan',subtitle:'Setiap produk berasal daripada ekstrak tumbuhan semula jadi — tambah ke beg dan buat pembayaran terus.',total:'Jumlah',checkout:'Ke Pembayaran',empty:'Beg anda kosong — pilih beberapa produk kegemaran dahulu.'},
-    checkout:{title:'Butiran Penghantaran',name:'Nama Penerima',phone:'Nombor Telefon',phoneHint:'Sila isikan nombor WhatsApp yang boleh dihubungi, contohnya: 0123456789',address:'Alamat Penghantaran',city:'Bandar',postcode:'Poskod',state:'Negeri',payLabel:'Pilih Kaedah Pembayaran',payHint:'Pilih kaedah pembayaran untuk lihat butiran.',optIn:'Saya bersetuju menerima mesej promosi daripada Allbes House melalui WhatsApp (balas "STOP" untuk berhenti langgan bila-bila masa)',confirm:'Sahkan Pesanan'},
+    checkout:{title:'Butiran Penghantaran',name:'Nama Penerima',phone:'Nombor Telefon',phoneHint:'Sila isikan nombor WhatsApp yang boleh dihubungi, contohnya: 0123456789',address:'Alamat Penghantaran',city:'Bandar',postcode:'Poskod',state:'Negeri',payLabel:'Pilih Kaedah Pembayaran',payHint:'Pilih kaedah pembayaran untuk lihat butiran.',optIn:'Saya bersetuju menerima mesej promosi daripada Lumee Store melalui WhatsApp (balas "STOP" untuk berhenti langgan bila-bila masa)',confirm:'Sahkan Pesanan'},
     pay:{bank:'Pindahan Bank',
       bankDetail:'Sila pindahkan ke:\nAllbes Trading\nBank: Public Bank\nAkaun: 3816700111\nSelepas pindahan, sila hantar tangkapan skrin pembayaran ke WhatsApp kami untuk pengesahan. Terima kasih!',
       tngDetail:"Imbas kod QR dengan Touch 'n Go eWallet untuk membayar:\n📱 [Kod QR sementara — gantikan dengan kod sebenar semasa pelancaran]\nSelepas membayar, sila hantar tangkapan skrin pembayaran ke WhatsApp kami untuk pengesahan. Terima kasih!"},
