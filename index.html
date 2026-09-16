@@ -600,6 +600,11 @@ const icons = {
 const PRODUCTS_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSUNh6-zmUlFM-UCEj6gBVTQkMaewV6_s0-zyxWf_c5smAhl_0nWAKSIiM7hiCxSHTQYd9SOMaYChkb/pub?gid=1452182612&single=true&output=csv';
 let rawProducts = []; // 从表格读到的原始商品数据，缓存在这里，语言切换时重复利用不用重新拉取
 const CATEGORY_ORDER = ['Shower','Body Lotion','Body Oil','Hair Care','Hand Cream','Gift Set','Lip Care','Others'];
+const CATEGORY_LABELS = {
+  zh: { 'Shower':'沐浴', 'Body Lotion':'身体乳', 'Body Oil':'身体油', 'Hair Care':'护发', 'Hand Cream':'护手霜', 'Gift Set':'礼盒套装', 'Lip Care':'唇部护理', 'Others':'其他' },
+  en: { 'Shower':'Shower', 'Body Lotion':'Body Lotion', 'Body Oil':'Body Oil', 'Hair Care':'Hair Care', 'Hand Cream':'Hand Cream', 'Gift Set':'Gift Set', 'Lip Care':'Lip Care', 'Others':'Others' },
+  ms: { 'Shower':'Mandi', 'Body Lotion':'Losyen Badan', 'Body Oil':'Minyak Badan', 'Hair Care':'Penjagaan Rambut', 'Hand Cream':'Krim Tangan', 'Gift Set':'Set Hadiah', 'Lip Care':'Penjagaan Bibir', 'Others':'Lain-lain' },
+};
 let activeCategory = 'all'; // 'all' 或者 CATEGORY_ORDER 里的某一个
 
 function pick(row, keys){
@@ -677,7 +682,7 @@ function renderCatFilters(){
   const bar = document.getElementById('cat-filters');
   const present = CATEGORY_ORDER.filter(cat=>rawProducts.some(p=>p.category===cat));
   const allLabel = lang==='zh'?'全部':(lang==='en'?'All':'Semua');
-  const chips = [{key:'all',label:allLabel}, ...present.map(c=>({key:c,label:c}))];
+  const chips = [{key:'all',label:allLabel}, ...present.map(c=>({key:c,label:(CATEGORY_LABELS[lang]&&CATEGORY_LABELS[lang][c])||c}))];
   bar.innerHTML = chips.map(c=>
     `<button class="cat-chip${activeCategory===c.key?' active':''}" onclick="setCategory('${c.key}')">${c.label}</button>`
   ).join('');
