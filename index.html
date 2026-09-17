@@ -18,7 +18,7 @@
     --lav:#8677a6; --lav-soft:#efe9f5; --ink:#2c2b26; --muted:#7c7666; --line:#e3ddca;
   }
   *{box-sizing:border-box;}
-  html,body{overflow-x:hidden;max-width:100%;}
+  html,body{overflow-x:clip;max-width:100%;}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:'Work Sans',sans-serif;line-height:1.6;}
   h1,h2,h3{font-family:'Fraunces',serif;margin:0;font-weight:600;}
   .wrap{max-width:1140px;margin:0 auto;padding:0 32px;}
@@ -65,7 +65,14 @@
   .section-head{margin-bottom:32px;}
   .section-head h2{font-size:clamp(21px,5.5vw,27px);}
   .section-head p{color:var(--muted);margin-top:9px;font-size:14px;}
-  .cat-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;}
+  .goods-toolbar{position:sticky;top:var(--header-h,104px);z-index:20;background:var(--bg);padding-block:10px 14px;margin-bottom:8px;}
+  .goods-search{
+    width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;
+    padding:10px 14px;font-family:'Work Sans',sans-serif;font-size:13.5px;color:var(--ink);
+    background:var(--panel);margin-bottom:12px;
+  }
+  .goods-search:focus{outline:none;border-color:var(--sage-deep);}
+  .cat-filters{display:flex;flex-wrap:wrap;gap:8px;}
   .cat-chip{
     font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:600;
     padding:8px 15px;border-radius:999px;border:1px solid var(--line);
@@ -265,7 +272,10 @@
       <h2 data-i18n="goods.title"></h2>
       <p data-i18n="goods.subtitle"></p>
     </div>
-    <div class="cat-filters" id="cat-filters"></div>
+    <div class="goods-toolbar" id="goods-toolbar">
+      <input type="text" id="goods-search" class="goods-search" oninput="onSearchInput(this.value)">
+      <div class="cat-filters" id="cat-filters"></div>
+    </div>
     <div class="goods-layout">
       <div class="product-grid" id="product-grid"></div>
       <div class="cart-panel">
@@ -607,6 +617,14 @@ const CATEGORY_LABELS = {
   ms: { 'Shower':'Mandi', 'Body Lotion':'Losyen Badan', 'Body Oil':'Minyak Badan', 'Hair Care':'Penjagaan Rambut', 'Hand Cream':'Krim Tangan', 'Gift Set':'Set Hadiah', 'Lip Care':'Penjagaan Bibir', 'Others':'Lain-lain' },
 };
 let activeCategory = 'all'; // 'all' 或者 CATEGORY_ORDER 里的某一个
+let searchQuery = '';
+const SEARCH_PLACEHOLDER = { zh:'搜索商品名称…', en:'Search products…', ms:'Cari produk…' };
+function onSearchInput(v){ searchQuery = v; renderProducts(); }
+function updateHeaderHeight(){
+  const header = document.querySelector('header');
+  if(header) document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+}
+window.addEventListener('resize', updateHeaderHeight);
 
 function pick(row, keys){
   for(const k of keys){
@@ -681,8 +699,10 @@ function iconFallback(imgEl, iconKey){
   if(imgEl && imgEl.parentElement) imgEl.parentElement.innerHTML = icons[iconKey] || '';
 }
 function currentProducts(){
-  if(activeCategory==='all') return rawProducts;
-  return rawProducts.filter(p=>p.category===activeCategory);
+  let list = activeCategory==='all' ? rawProducts : rawProducts.filter(p=>p.category===activeCategory);
+  const q = searchQuery.trim().toLowerCase();
+  if(q) list = list.filter(p=>p.name.toLowerCase().includes(q));
+  return list;
 }
 function setCategory(cat){
   activeCategory = cat;
@@ -690,6 +710,9 @@ function setCategory(cat){
   renderProducts();
 }
 function renderCatFilters(){
+  updateHeaderHeight();
+  const searchInput = document.getElementById('goods-search');
+  if(searchInput) searchInput.placeholder = SEARCH_PLACEHOLDER[lang];
   const bar = document.getElementById('cat-filters');
   const present = CATEGORY_ORDER.filter(cat=>rawProducts.some(p=>p.category===cat));
   const allLabel = lang==='zh'?'全部':(lang==='en'?'All':'Semua');
