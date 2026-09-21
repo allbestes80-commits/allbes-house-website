@@ -23,7 +23,7 @@
   h1,h2,h3{font-family:'Fraunces',serif;margin:0;font-weight:600;}
   .wrap{max-width:1140px;margin:0 auto;padding:0 32px;}
 
-  header{position:sticky;top:0;background:rgba(247,244,236,.94);backdrop-filter:blur(6px);z-index:30;border-bottom:1px solid var(--line);}
+  header{background:rgba(247,244,236,.94);backdrop-filter:blur(6px);z-index:30;border-bottom:1px solid var(--line);}
   .nav{display:flex;justify-content:space-between;align-items:center;padding:16px 0;gap:16px;flex-wrap:wrap;}
   .brand{font-family:'Fraunces',serif;font-size:clamp(17px,5vw,22px);white-space:nowrap;}
   .brand span{color:var(--sage-deep);}
@@ -65,13 +65,15 @@
   .section-head{margin-bottom:32px;}
   .section-head h2{font-size:clamp(21px,5.5vw,27px);}
   .section-head p{color:var(--muted);margin-top:9px;font-size:14px;}
-  .goods-toolbar{position:sticky;top:var(--header-h,104px);z-index:20;background:var(--bg);padding-block:10px 14px;margin-bottom:8px;}
+  .goods-toolbar{position:sticky;top:0;z-index:20;background:var(--bg);padding-block:10px 14px;margin-bottom:8px;}
+  .goods-search-row{display:flex;gap:8px;margin-bottom:12px;}
   .goods-search{
-    width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;
+    flex:1;min-width:0;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;
     padding:10px 14px;font-family:'Work Sans',sans-serif;font-size:13.5px;color:var(--ink);
-    background:var(--panel);margin-bottom:12px;
+    background:var(--panel);
   }
   .goods-search:focus{outline:none;border-color:var(--sage-deep);}
+  .goods-toolbar .cart-btn{flex:none;background:var(--panel);}
   .cat-filters{display:flex;flex-wrap:wrap;gap:8px;}
   .cat-chip{
     font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:600;
@@ -108,7 +110,7 @@
   }
   .ask-btn svg{width:19px;height:19px;fill:#25D366;}
 
-  .cart-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;position:sticky;top:96px;}
+  .cart-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;position:sticky;top:16px;}
   .cart-panel h3{font-size:16px;margin-bottom:14px;}
   .cart-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);}
   .cart-item .thumb{
@@ -273,7 +275,10 @@
       <p data-i18n="goods.subtitle"></p>
     </div>
     <div class="goods-toolbar" id="goods-toolbar">
-      <input type="text" id="goods-search" class="goods-search" oninput="onSearchInput(this.value)">
+      <div class="goods-search-row">
+        <input type="text" id="goods-search" class="goods-search" oninput="onSearchInput(this.value)">
+        <button class="cart-btn" onclick="showPage('goods')"><span data-i18n="nav.cart"></span> (<span id="cart-count-2">0</span>)</button>
+      </div>
       <div class="cat-filters" id="cat-filters"></div>
     </div>
     <div class="goods-layout">
@@ -620,11 +625,6 @@ let activeCategory = 'all'; // 'all' 或者 CATEGORY_ORDER 里的某一个
 let searchQuery = '';
 const SEARCH_PLACEHOLDER = { zh:'搜索商品名称…', en:'Search products…', ms:'Cari produk…' };
 function onSearchInput(v){ searchQuery = v; renderProducts(); }
-function updateHeaderHeight(){
-  const header = document.querySelector('header');
-  if(header) document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
-}
-window.addEventListener('resize', updateHeaderHeight);
 
 function pick(row, keys){
   for(const k of keys){
@@ -710,7 +710,6 @@ function setCategory(cat){
   renderProducts();
 }
 function renderCatFilters(){
-  updateHeaderHeight();
   const searchInput = document.getElementById('goods-search');
   if(searchInput) searchInput.placeholder = SEARCH_PLACEHOLDER[lang];
   const bar = document.getElementById('cat-filters');
@@ -804,6 +803,8 @@ function renderCart(){
   const count = cart.reduce((s,c)=>s+c.qty,0);
   totalEl.textContent = 'RM ' + total;
   countEl.textContent = count;
+  const countEl2 = document.getElementById('cart-count-2');
+  if(countEl2) countEl2.textContent = count;
 }
 function openCheckout(){
   document.getElementById('checkout-form').style.display='block';
