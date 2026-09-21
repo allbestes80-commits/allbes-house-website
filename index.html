@@ -82,7 +82,6 @@
   }
   .cat-chip:hover{border-color:var(--sage-deep);color:var(--sage-deep);}
   .cat-chip.active{background:var(--sage-deep);border-color:var(--sage-deep);color:#fff;}
-  .goods-layout{display:grid;grid-template-columns:1fr 330px;gap:28px;align-items:start;}
   .product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
   .product{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;height:100%;}
   .product .photo{
@@ -110,7 +109,7 @@
   }
   .ask-btn svg{width:19px;height:19px;fill:#25D366;}
 
-  .cart-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;position:sticky;top:16px;}
+  .cart-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:28px;}
   .cart-panel h3{font-size:16px;margin-bottom:14px;}
   .cart-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);}
   .cart-item .thumb{
@@ -240,7 +239,7 @@
         <button class="lang-btn" data-lang="en">EN</button>
         <button class="lang-btn" data-lang="ms">BM</button>
       </div>
-      <button class="cart-btn" onclick="showPage('goods')"><span data-i18n="nav.cart"></span> (<span id="cart-count">0</span>)</button>
+      <button class="cart-btn" onclick="showPage('cart')"><span data-i18n="nav.cart"></span> (<span id="cart-count">0</span>)</button>
     </div>
   </div>
 </header>
@@ -277,21 +276,26 @@
     <div class="goods-toolbar" id="goods-toolbar">
       <div class="goods-search-row">
         <input type="text" id="goods-search" class="goods-search" oninput="onSearchInput(this.value)">
-        <button class="cart-btn" onclick="showPage('goods')"><span data-i18n="nav.cart"></span> (<span id="cart-count-2">0</span>)</button>
+        <button class="cart-btn" onclick="showPage('cart')"><span data-i18n="nav.cart"></span> (<span id="cart-count-2">0</span>)</button>
       </div>
       <div class="cat-filters" id="cat-filters"></div>
     </div>
-    <div class="goods-layout">
-      <div class="product-grid" id="product-grid"></div>
-      <div class="cart-panel">
-        <h3 data-i18n="nav.cart"></h3>
-        <div id="cart-items"></div>
-        <div class="cart-total"><span data-i18n="goods.total"></span><span id="cart-total">RM 0</span></div>
-        <button class="btn-primary" id="checkout-btn" disabled onclick="openCheckout()" data-i18n="goods.checkout"></button>
-      </div>
+    <div class="product-grid" id="product-grid"></div>
+  </div>
+</section>
+
+<!-- CART / CHECKOUT -->
+<section class="page" id="cart">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 data-i18n="nav.cart"></h2>
+    </div>
+    <div class="cart-panel">
+      <div id="cart-items"></div>
+      <div class="cart-total"><span data-i18n="goods.total"></span><span id="cart-total">RM 0</span></div>
     </div>
 
-    <div id="checkout-form" style="display:none;margin-top:44px;">
+    <div id="cart-checkout-section">
       <div class="section-head"><h2 data-i18n="checkout.title"></h2></div>
       <div class="form-card">
         <div class="row2">
@@ -324,10 +328,10 @@
           <span data-i18n="checkout.optIn"></span>
         </label>
 
-        <button class="btn-primary" onclick="submitGoodsOrder()" data-i18n="checkout.confirm"></button>
-        <div class="confirm-box" id="g-confirm"></div>
+        <button class="btn-primary" id="checkout-btn" disabled onclick="submitGoodsOrder()" data-i18n="checkout.confirm"></button>
       </div>
     </div>
+    <div class="confirm-box" id="g-confirm"></div>
   </div>
 </section>
 
@@ -458,7 +462,7 @@ const I18N = {
       trust2:{b:'现货发售',s:'下单即发货'},
       trust3:{b:'专属客服',s:'1 个工作日内联系'},
     },
-    goods:{title:'植萃精选',subtitle:'每一件都来自天然植物萃取，加入购物袋即可直接下单结算。',total:'合计',checkout:'去结算',empty:'购物袋是空的，先去挑几件喜欢的吧。'},
+    goods:{title:'植萃精选',subtitle:'每一件都来自天然植物萃取，加入购物袋即可直接下单结算。',total:'合计',checkout:'去结算',empty:'购物袋是空的，先去挑几件喜欢的吧。',browse:'去挑选商品 →'},
     checkout:{title:'填写收货信息',name:'收货人姓名',phone:'联系电话',phoneHint:'请填写可以联系到的 WhatsApp 号码，例如：0123456789',address:'收货地址',city:'城市',postcode:'邮政编码',state:'州属',payLabel:'选择付款方式',payHint:'请选择一种付款方式查看详情。',optIn:'我同意接收 Lumee Store 通过 WhatsApp 发送的优惠信息（可随时回复"退订"取消）',confirm:'确认下单'},
     pay:{bank:'银行转账',
       bankDetail:'请转账至：\nAllbes Trading\n银行：Public Bank\n账号：3816700111\n转账完成后，请把付款截图发到我们的 WhatsApp 确认，谢谢！',
@@ -495,7 +499,7 @@ const I18N = {
       trust2:{b:'Ready Stock',s:'Ships promptly'},
       trust3:{b:'Dedicated Support',s:'Reply within 1 business day'},
     },
-    goods:{title:'Botanical Selection',subtitle:'Every item is derived from natural botanical extracts — add to bag and check out directly.',total:'Total',checkout:'Checkout',empty:'Your bag is empty — pick a few favorites first.'},
+    goods:{title:'Botanical Selection',subtitle:'Every item is derived from natural botanical extracts — add to bag and check out directly.',total:'Total',checkout:'Checkout',empty:'Your bag is empty — pick a few favorites first.',browse:'Browse products →'},
     checkout:{title:'Shipping Details',name:'Recipient Name',phone:'Phone Number',phoneHint:'Please provide a reachable WhatsApp number, e.g. 0123456789',address:'Delivery Address',city:'City',postcode:'Postcode',state:'State',payLabel:'Choose Payment Method',payHint:'Select a payment method to see details.',optIn:'I agree to receive promotional messages from Lumee Store via WhatsApp (reply "STOP" anytime to opt out)',confirm:'Confirm Order'},
     pay:{bank:'Bank Transfer',
       bankDetail:'Please transfer to:\nAllbes Trading\nBank: Public Bank\nAccount: 3816700111\nAfter transferring, please send a screenshot of your payment to our WhatsApp for confirmation. Thank you!',
@@ -532,7 +536,7 @@ const I18N = {
       trust2:{b:'Stok Sedia Ada',s:'Penghantaran segera'},
       trust3:{b:'Sokongan Peribadi',s:'Balasan dalam 1 hari bekerja'},
     },
-    goods:{title:'Pilihan Tumbuhan',subtitle:'Setiap produk berasal daripada ekstrak tumbuhan semula jadi — tambah ke beg dan buat pembayaran terus.',total:'Jumlah',checkout:'Ke Pembayaran',empty:'Beg anda kosong — pilih beberapa produk kegemaran dahulu.'},
+    goods:{title:'Pilihan Tumbuhan',subtitle:'Setiap produk berasal daripada ekstrak tumbuhan semula jadi — tambah ke beg dan buat pembayaran terus.',total:'Jumlah',checkout:'Ke Pembayaran',empty:'Beg anda kosong — pilih beberapa produk kegemaran dahulu.',browse:'Lihat produk →'},
     checkout:{title:'Butiran Penghantaran',name:'Nama Penerima',phone:'Nombor Telefon',phoneHint:'Sila isikan nombor WhatsApp yang boleh dihubungi, contohnya: 0123456789',address:'Alamat Penghantaran',city:'Bandar',postcode:'Poskod',state:'Negeri',payLabel:'Pilih Kaedah Pembayaran',payHint:'Pilih kaedah pembayaran untuk lihat butiran.',optIn:'Saya bersetuju menerima mesej promosi daripada Lumee Store melalui WhatsApp (balas "STOP" untuk berhenti langgan bila-bila masa)',confirm:'Sahkan Pesanan'},
     pay:{bank:'Pindahan Bank',
       bankDetail:'Sila pindahkan ke:\nAllbes Trading\nBank: Public Bank\nAkaun: 3816700111\nSelepas pindahan, sila hantar tangkapan skrin pembayaran ke WhatsApp kami untuk pengesahan. Terima kasih!',
@@ -786,10 +790,13 @@ function renderCart(){
   const countEl = document.getElementById('cart-count');
   const totalEl = document.getElementById('cart-total');
   const checkoutBtn = document.getElementById('checkout-btn');
+  const checkoutSection = document.getElementById('cart-checkout-section');
   if(cart.length===0){
-    box.innerHTML = `<div class="cart-empty">${t('goods.empty')}</div>`;
+    box.innerHTML = `<div class="cart-empty">${t('goods.empty')}<br><span style="cursor:pointer;text-decoration:underline;color:var(--sage-deep)" onclick="showPage('goods')">${t('goods.browse')}</span></div>`;
     checkoutBtn.disabled = true;
+    if(checkoutSection) checkoutSection.style.display = 'none';
   } else {
+    if(checkoutSection) checkoutSection.style.display = 'block';
     box.innerHTML = cart.map((c,i)=>{
       return `<div class="cart-item">
         <div class="thumb">${c.imageUrl ? `<img src="${c.imageUrl}" alt="${c.name}" onerror="iconFallback(this,'${c.icon}')">` : icons[c.icon]}</div>
@@ -806,11 +813,6 @@ function renderCart(){
   const countEl2 = document.getElementById('cart-count-2');
   if(countEl2) countEl2.textContent = count;
 }
-function openCheckout(){
-  document.getElementById('checkout-form').style.display='block';
-  document.getElementById('checkout-form').scrollIntoView({behavior:'smooth'});
-}
-
 /* ---------- payment option UI ---------- */
 function wirePayOptions(containerId, detailId, stateSetter){
   const opts = document.querySelectorAll('#'+containerId+' .pay-opt');
@@ -868,6 +870,8 @@ function submitGoodsOrder(){
   });
   sendOrderNotify(name, phone, orderNo);
   logOptIn(phone, name, document.getElementById('g-optin').checked);
+  cart = [];
+  renderCart();
   const box = document.getElementById('g-confirm');
   box.style.display='block';
   box.innerHTML = t('submitGoods')(name, orderNo, goodsPay) + `<br><span style="cursor:pointer;text-decoration:underline;color:var(--sage-deep)" onclick="goToTrack('${orderNo}')">${t('track.viewTrack')}</span>`;
