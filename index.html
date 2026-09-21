@@ -768,7 +768,17 @@ function renderProducts(){
 }
 
 /* ---------- cart ---------- */
-let cart = [];
+const CART_STORAGE_KEY = 'lumee_cart';
+function loadCartFromStorage(){
+  try{
+    const saved = localStorage.getItem(CART_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  }catch(e){ return []; }
+}
+function saveCartToStorage(){
+  try{ localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); }catch(e){}
+}
+let cart = loadCartFromStorage();
 function addToCart(i){
   const products = currentProducts();
   const p = products[i];
@@ -786,6 +796,7 @@ function removeFromCart(i){
   renderCart();
 }
 function renderCart(){
+  saveCartToStorage();
   const box = document.getElementById('cart-items');
   const countEl = document.getElementById('cart-count');
   const totalEl = document.getElementById('cart-total');
