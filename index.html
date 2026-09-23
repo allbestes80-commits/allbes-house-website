@@ -142,6 +142,8 @@
   .btn-primary{width:100%;margin-top:16px;padding:13px;background:var(--sage-deep);color:#fff;border:none;border-radius:10px;font-family:'Work Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
   .btn-primary:hover{background:var(--sage);}
   .btn-primary:disabled{background:#c7c3b3;cursor:not-allowed;}
+  .btn-secondary{width:100%;padding:13px;background:transparent;color:var(--sage-deep);border:1px solid var(--line);border-radius:10px;font-family:'Work Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+  .btn-secondary:hover{background:var(--bg);}
 
   .field{margin-bottom:15px;}
   .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;}
@@ -257,25 +259,35 @@
 <div class="login-gate" id="login-gate">
   <div class="login-card">
     <div class="brand">Lumee <span>Store</span></div>
-    <h2 data-i18n="login.title"></h2>
-    <p data-i18n="login.subtitle"></p>
 
-    <div class="field">
-      <label data-i18n="checkout.phone"></label>
-      <div class="phone-field">
-        <span class="phone-prefix">+6</span>
-        <input id="login-phone" type="text" placeholder="0123456789">
+    <div id="login-step-verify">
+      <h2 data-i18n="login.title"></h2>
+      <p data-i18n="login.subtitle"></p>
+
+      <div class="field">
+        <label data-i18n="checkout.phone"></label>
+        <div class="phone-field">
+          <span class="phone-prefix">+6</span>
+          <input id="login-phone" type="text" placeholder="0123456789">
+        </div>
       </div>
-    </div>
-    <a id="login-wa-link" class="btn-primary login-wa-btn" href="#" target="_blank" rel="noopener" data-i18n="login.getCode"></a>
+      <a id="login-wa-link" class="btn-primary login-wa-btn" href="#" target="_blank" rel="noopener" data-i18n="login.getCode"></a>
 
-    <div class="field" style="margin-top:18px;">
-      <label data-i18n="login.codeLabel"></label>
-      <input id="login-code" type="text" inputmode="numeric" maxlength="6" placeholder="123456" oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
-      <small class="login-hint" data-i18n="login.resend" style="display:block;margin-top:6px;opacity:.7;"></small>
+      <div class="field" style="margin-top:18px;">
+        <label data-i18n="login.codeLabel"></label>
+        <input id="login-code" type="text" inputmode="numeric" maxlength="6" placeholder="123456" oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
+        <small class="login-hint" data-i18n="login.resend" style="display:block;margin-top:6px;opacity:.7;"></small>
+      </div>
+      <button class="btn-primary" onclick="verifyLoginCode()" data-i18n="login.verify"></button>
+      <div class="login-error" id="login-error"></div>
     </div>
-    <button class="btn-primary" onclick="verifyLoginCode()" data-i18n="login.verify"></button>
-    <div class="login-error" id="login-error"></div>
+
+    <div id="login-step-consent" style="display:none;">
+      <h2 data-i18n="login.consentTitle"></h2>
+      <p data-i18n="login.consentSubtitle"></p>
+      <button class="btn-primary" onclick="submitMarketingOptIn(true)" data-i18n="login.consentYes"></button>
+      <button class="btn-secondary" style="margin-top:10px;" onclick="submitMarketingOptIn(false)" data-i18n="login.consentNo"></button>
+    </div>
   </div>
 </div>
 
@@ -530,11 +542,24 @@ async function verifyLoginCode(){
       errorEl.textContent = data.error || t('login.failed');
       return;
     }
-    setVerifiedPhone(phone);
-    checkLoginGate();
+    const realPhone = data.phone || phone;
+    setVerifiedPhone(realPhone);
+    document.getElementById('login-step-verify').style.display = 'none';
+    document.getElementById('login-step-consent').style.display = 'block';
   }catch(err){
     errorEl.textContent = t('login.failed');
   }
+}
+async function submitMarketingOptIn(optIn){
+  const phone = getVerifiedPhone();
+  try{
+    await fetch(BOT_API_BASE + '/api/marketing-optin', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ phone, optIn }),
+    });
+  }catch(err){}
+  checkLoginGate();
 }
 const STOCK_TEXT = {
   zh:{left:(n)=>`现货 ${n} 件`, out:'暂时缺货'},
@@ -576,7 +601,7 @@ function updateWaButton(){
 const I18N = {
   zh:{
     nav:{home:'首页',goods:'植萃精选',chatbot:'智能客服服务',track:'物流查询',cart:'购物袋'},
-    login:{title:'先验证一下 WhatsApp 号码',subtitle:'填好手机号后点下面的按钮，会跳转到 WhatsApp 发一条消息，机器人会秒回一个验证码，抄回来这里输入就行。',getCode:'去 WhatsApp 获取验证码',codeLabel:'验证码',verify:'验证',needPhone:'请先填手机号',needCode:'请输入收到的验证码',codeLength:'验证码是6位数字，请检查后重新输入',resend:'如果重新获取过验证码，请以 WhatsApp 上最新一条为准，旧的验证码会失效',failed:'验证失败，请检查验证码是否正确，或重新获取'},
+    login:{title:'先验证一下 WhatsApp 号码',subtitle:'填好手机号后点下面的按钮，会跳转到 WhatsApp 发一条消息，机器人会秒回一个验证码，抄回来这里输入就行。',getCode:'去 WhatsApp 获取验证码',codeLabel:'验证码',verify:'验证',needPhone:'请先填手机号',needCode:'请输入收到的验证码',codeLength:'验证码是6位数字，请检查后重新输入',resend:'如果重新获取过验证码，请以 WhatsApp 上最新一条为准，旧的验证码会失效',failed:'验证失败，请检查验证码是否正确，或重新获取',consentTitle:'愿意收到我们的优惠信息吗？',consentSubtitle:'以后有新品或折扣活动，我们会通过 WhatsApp 通知您，随时可以取消。',consentYes:'愿意，通知我',consentNo:'暂时不用了'},
     home:{
       kicker:'LUMEE STORE · 植物萃取 生活好物',
       h1:'来自普罗旺斯的植萃呵护，给肌肤最温柔的对待',
@@ -614,7 +639,7 @@ const I18N = {
   },
   en:{
     nav:{home:'Home',goods:'Botanicals',chatbot:'Chatbot Service',track:'Track Order',cart:'Bag'},
-    login:{title:'Verify your WhatsApp number',subtitle:"Enter your number and tap the button below — it'll open WhatsApp with a message. Our bot replies instantly with a code; copy it back here.",getCode:'Get code on WhatsApp',codeLabel:'Verification code',verify:'Verify',needPhone:'Please enter your phone number first',needCode:'Please enter the code you received',codeLength:'The code is 6 digits — please check and re-enter',resend:'If you requested a new code, use the latest WhatsApp message — older codes stop working',failed:'Verification failed — check the code or request a new one'},
+    login:{title:'Verify your WhatsApp number',subtitle:"Enter your number and tap the button below — it'll open WhatsApp with a message. Our bot replies instantly with a code; copy it back here.",getCode:'Get code on WhatsApp',codeLabel:'Verification code',verify:'Verify',needPhone:'Please enter your phone number first',needCode:'Please enter the code you received',codeLength:'The code is 6 digits — please check and re-enter',resend:'If you requested a new code, use the latest WhatsApp message — older codes stop working',failed:'Verification failed — check the code or request a new one',consentTitle:'Want to hear about our promos?',consentSubtitle:"We'll message you on WhatsApp about new products and discounts. You can opt out anytime.",consentYes:'Yes, notify me',consentNo:'Not for now'},
     home:{
       kicker:'LUMEE STORE · BOTANICAL LIVING ESSENTIALS',
       h1:'Provence-inspired botanical care, gently tending to your skin',
@@ -652,7 +677,7 @@ const I18N = {
   },
   ms:{
     nav:{home:'Laman Utama',goods:'Produk Tumbuhan',chatbot:'Perkhidmatan Chatbot',track:'Jejak Pesanan',cart:'Beg'},
-    login:{title:'Sahkan nombor WhatsApp anda',subtitle:'Isi nombor telefon dan tekan butang di bawah — WhatsApp akan dibuka dengan mesej sedia. Bot kami akan balas kod dengan segera; salin kod itu ke sini.',getCode:'Dapatkan kod di WhatsApp',codeLabel:'Kod pengesahan',verify:'Sahkan',needPhone:'Sila isi nombor telefon dahulu',needCode:'Sila masukkan kod yang diterima',codeLength:'Kod itu 6 digit — sila semak dan masukkan semula',resend:'Jika anda minta kod baharu, guna mesej WhatsApp terkini — kod lama tidak sah lagi',failed:'Pengesahan gagal — semak kod atau minta kod baharu'},
+    login:{title:'Sahkan nombor WhatsApp anda',subtitle:'Isi nombor telefon dan tekan butang di bawah — WhatsApp akan dibuka dengan mesej sedia. Bot kami akan balas kod dengan segera; salin kod itu ke sini.',getCode:'Dapatkan kod di WhatsApp',codeLabel:'Kod pengesahan',verify:'Sahkan',needPhone:'Sila isi nombor telefon dahulu',needCode:'Sila masukkan kod yang diterima',codeLength:'Kod itu 6 digit — sila semak dan masukkan semula',resend:'Jika anda minta kod baharu, guna mesej WhatsApp terkini — kod lama tidak sah lagi',failed:'Pengesahan gagal — semak kod atau minta kod baharu',consentTitle:'Nak tahu tentang promosi kami?',consentSubtitle:'Kami akan mesej anda di WhatsApp bila ada produk baharu atau diskaun. Boleh berhenti langgan bila-bila masa.',consentYes:'Ya, maklumkan saya',consentNo:'Tidak buat masa ini'},
     home:{
       kicker:'LUMEE STORE · KEPERLUAN HIDUP BERASASKAN TUMBUHAN',
       h1:'Penjagaan tumbuhan berinspirasikan Provence, lembut untuk kulit anda',
