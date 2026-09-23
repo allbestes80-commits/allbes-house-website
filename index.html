@@ -82,6 +82,17 @@
   }
   .cat-chip:hover{border-color:var(--sage-deep);color:var(--sage-deep);}
   .cat-chip.active{background:var(--sage-deep);border-color:var(--sage-deep);color:#fff;}
+  .daigou-banner{
+    margin-top:36px;padding:20px 24px;background:var(--lav-soft);border-radius:14px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  }
+  .daigou-banner p{margin:0;font-size:13.5px;color:var(--ink);max-width:52ch;}
+  .daigou-banner a{
+    flex:none;font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;
+    color:#fff;background:var(--sage-deep);padding:10px 18px;border-radius:999px;
+    text-decoration:none;white-space:nowrap;
+  }
+  .daigou-banner a:hover{background:var(--sage);}
   .product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
   .product{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;height:100%;}
   .product .photo{
@@ -281,6 +292,11 @@
       <div class="cat-filters" id="cat-filters"></div>
     </div>
     <div class="product-grid" id="product-grid"></div>
+
+    <div class="daigou-banner">
+      <p data-i18n="goods.daigouText"></p>
+      <a id="daigou-link" href="#" target="_blank" rel="noopener" data-i18n="goods.daigouCta"></a>
+    </div>
   </div>
 </section>
 
@@ -412,6 +428,16 @@ const ASK_TEXT = {
   en:(name)=>`Hi, I'd like to ask about this product: ${name}`,
   ms:(name)=>`Hai, saya ingin bertanya tentang produk ini: ${name}`,
 };
+const WA_DAIGOU_GREETING = {
+  zh:'您好，我想找一款你们目前没有上架的商品，想问一下能不能帮忙代购。',
+  en:"Hi, I'm looking for an item you don't currently list — could you help me source it (daigou)?",
+  ms:'Hai, saya mencari produk yang tiada dalam senarai anda — bolehkah anda bantu carikan (daigou)?',
+};
+function updateDaigouLink(){
+  const el = document.getElementById('daigou-link');
+  if(!el) return;
+  el.href = 'https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(WA_DAIGOU_GREETING[lang]);
+}
 const STOCK_TEXT = {
   zh:{left:(n)=>`现货 ${n} 件`, out:'暂时缺货'},
   en:{left:(n)=>`${n} in stock`, out:'Out of stock'},
@@ -462,7 +488,7 @@ const I18N = {
       trust2:{b:'现货发售',s:'下单即发货'},
       trust3:{b:'专属客服',s:'1 个工作日内联系'},
     },
-    goods:{title:'植萃精选',subtitle:'每一件都来自天然植物萃取，加入购物袋即可直接下单结算。',total:'合计',checkout:'去结算',empty:'购物袋是空的，先去挑几件喜欢的吧。',browse:'去挑选商品 →'},
+    goods:{title:'植萃精选',subtitle:'每一件都来自天然植物萃取，加入购物袋即可直接下单结算。',total:'合计',checkout:'去结算',empty:'购物袋是空的，先去挑几件喜欢的吧。',browse:'去挑选商品 →',daigouText:'没有找到想要的商品？我们也提供代购服务，帮您从国外采购，大概 1-2 周到货。',daigouCta:'WhatsApp 联系我们 →'},
     checkout:{title:'填写收货信息',name:'收货人姓名',phone:'联系电话',phoneHint:'请填写可以联系到的 WhatsApp 号码，例如：0123456789',address:'收货地址',city:'城市',postcode:'邮政编码',state:'州属',payLabel:'选择付款方式',payHint:'请选择一种付款方式查看详情。',optIn:'我同意接收 Lumee Store 通过 WhatsApp 发送的优惠信息（可随时回复"退订"取消）',confirm:'确认下单'},
     pay:{bank:'银行转账',
       bankDetail:'请转账至：\nAllbes Trading\n银行：Public Bank\n账号：3816700111\n转账完成后，请把付款截图发到我们的 WhatsApp 确认，谢谢！',
@@ -499,7 +525,7 @@ const I18N = {
       trust2:{b:'Ready Stock',s:'Ships promptly'},
       trust3:{b:'Dedicated Support',s:'Reply within 1 business day'},
     },
-    goods:{title:'Botanical Selection',subtitle:'Every item is derived from natural botanical extracts — add to bag and check out directly.',total:'Total',checkout:'Checkout',empty:'Your bag is empty — pick a few favorites first.',browse:'Browse products →'},
+    goods:{title:'Botanical Selection',subtitle:'Every item is derived from natural botanical extracts — add to bag and check out directly.',total:'Total',checkout:'Checkout',empty:'Your bag is empty — pick a few favorites first.',browse:'Browse products →',daigouText:"Can't find what you're looking for? We also offer daigou sourcing — we'll get it from overseas for you, usually within 1-2 weeks.",daigouCta:'Chat with us on WhatsApp →'},
     checkout:{title:'Shipping Details',name:'Recipient Name',phone:'Phone Number',phoneHint:'Please provide a reachable WhatsApp number, e.g. 0123456789',address:'Delivery Address',city:'City',postcode:'Postcode',state:'State',payLabel:'Choose Payment Method',payHint:'Select a payment method to see details.',optIn:'I agree to receive promotional messages from Lumee Store via WhatsApp (reply "STOP" anytime to opt out)',confirm:'Confirm Order'},
     pay:{bank:'Bank Transfer',
       bankDetail:'Please transfer to:\nAllbes Trading\nBank: Public Bank\nAccount: 3816700111\nAfter transferring, please send a screenshot of your payment to our WhatsApp for confirmation. Thank you!',
@@ -536,7 +562,7 @@ const I18N = {
       trust2:{b:'Stok Sedia Ada',s:'Penghantaran segera'},
       trust3:{b:'Sokongan Peribadi',s:'Balasan dalam 1 hari bekerja'},
     },
-    goods:{title:'Pilihan Tumbuhan',subtitle:'Setiap produk berasal daripada ekstrak tumbuhan semula jadi — tambah ke beg dan buat pembayaran terus.',total:'Jumlah',checkout:'Ke Pembayaran',empty:'Beg anda kosong — pilih beberapa produk kegemaran dahulu.',browse:'Lihat produk →'},
+    goods:{title:'Pilihan Tumbuhan',subtitle:'Setiap produk berasal daripada ekstrak tumbuhan semula jadi — tambah ke beg dan buat pembayaran terus.',total:'Jumlah',checkout:'Ke Pembayaran',empty:'Beg anda kosong — pilih beberapa produk kegemaran dahulu.',browse:'Lihat produk →',daigouText:'Tidak jumpa produk yang dicari? Kami juga sediakan perkhidmatan daigou — kami bantu dapatkan dari luar negara, biasanya dalam 1-2 minggu.',daigouCta:'Hubungi kami di WhatsApp →'},
     checkout:{title:'Butiran Penghantaran',name:'Nama Penerima',phone:'Nombor Telefon',phoneHint:'Sila isikan nombor WhatsApp yang boleh dihubungi, contohnya: 0123456789',address:'Alamat Penghantaran',city:'Bandar',postcode:'Poskod',state:'Negeri',payLabel:'Pilih Kaedah Pembayaran',payHint:'Pilih kaedah pembayaran untuk lihat butiran.',optIn:'Saya bersetuju menerima mesej promosi daripada Lumee Store melalui WhatsApp (balas "STOP" untuk berhenti langgan bila-bila masa)',confirm:'Sahkan Pesanan'},
     pay:{bank:'Pindahan Bank',
       bankDetail:'Sila pindahkan ke:\nAllbes Trading\nBank: Public Bank\nAkaun: 3816700111\nSelepas pindahan, sila hantar tangkapan skrin pembayaran ke WhatsApp kami untuk pengesahan. Terima kasih!',
@@ -585,6 +611,7 @@ function applyLang(){
   renderCart();
   document.getElementById('track-result').innerHTML = `<div class="track-empty">${t('track.empty')}</div>`;
   updateWaButton();
+  updateDaigouLink();
 }
 document.querySelectorAll('.lang-btn').forEach(b=>{
   b.addEventListener('click',()=>{
