@@ -183,6 +183,24 @@
 
   .form-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;max-width:640px;}
 
+  .login-gate{
+    position:fixed;inset:0;z-index:100;background:var(--bg);
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;overflow-y:auto;
+  }
+  .login-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:32px 28px;max-width:380px;width:100%;text-align:center;
+  }
+  .login-card .brand{font-family:'Fraunces',serif;font-size:22px;margin-bottom:18px;}
+  .login-card .brand span{color:var(--sage-deep);}
+  .login-card h2{font-size:19px;margin-bottom:8px;}
+  .login-card p{color:var(--muted);font-size:13px;margin:0 0 22px;line-height:1.6;}
+  .login-card .field{text-align:left;}
+  .login-wa-btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box;background:#25D366;}
+  .login-wa-btn:hover{filter:brightness(0.95);}
+  .login-error{color:#b3543f;font-size:12.5px;margin-top:10px;min-height:16px;}
+
   .track-highlight{background:var(--lav-soft);border-radius:14px;padding:24px 28px;margin-bottom:32px;}
   .track-highlight h3{font-size:clamp(17px,4.5vw,19px);margin-bottom:8px;color:var(--sage-deep);}
   .track-highlight p{color:var(--muted);font-size:13.5px;margin:0;}
@@ -235,6 +253,30 @@
 </style>
 </head>
 <body>
+
+<div class="login-gate" id="login-gate">
+  <div class="login-card">
+    <div class="brand">Lumee <span>Store</span></div>
+    <h2 data-i18n="login.title"></h2>
+    <p data-i18n="login.subtitle"></p>
+
+    <div class="field">
+      <label data-i18n="checkout.phone"></label>
+      <div class="phone-field">
+        <span class="phone-prefix">+6</span>
+        <input id="login-phone" type="text" placeholder="0123456789">
+      </div>
+    </div>
+    <a id="login-wa-link" class="btn-primary login-wa-btn" href="#" target="_blank" rel="noopener" data-i18n="login.getCode"></a>
+
+    <div class="field" style="margin-top:18px;">
+      <label data-i18n="login.codeLabel"></label>
+      <input id="login-code" type="text" inputmode="numeric" placeholder="123456">
+    </div>
+    <button class="btn-primary" onclick="verifyLoginCode()" data-i18n="login.verify"></button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
 
 <header>
   <div class="wrap nav">
@@ -438,6 +480,60 @@ function updateDaigouLink(){
   if(!el) return;
   el.href = 'https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(WA_DAIGOU_GREETING[lang]);
 }
+
+/* ---------- 登录验证（绑定 WhatsApp 手机号） ---------- */
+const LOGIN_STORAGE_KEY = 'lumee_verified_phone';
+function getVerifiedPhone(){
+  try{ return localStorage.getItem(LOGIN_STORAGE_KEY) || ''; }catch(e){ return ''; }
+}
+function setVerifiedPhone(phone){
+  try{ localStorage.setItem(LOGIN_STORAGE_KEY, phone); }catch(e){}
+}
+function updateLoginWaLink(){
+  const el = document.getElementById('login-wa-link');
+  if(!el) return;
+  el.href = 'https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent('LUMEE-LOGIN-'+lang.toUpperCase());
+}
+function fillCheckoutPhone(localPhone){
+  const phoneInput = document.getElementById('g-phone');
+  if(phoneInput && localPhone) phoneInput.value = localPhone;
+}
+function checkLoginGate(){
+  const gate = document.getElementById('login-gate');
+  if(!gate) return;
+  const verified = getVerifiedPhone();
+  gate.style.display = verified ? 'none' : 'flex';
+  if(verified){
+    fillCheckoutPhone(verified.replace(/^\+6/, ''));
+    const loginPhoneInput = document.getElementById('login-phone');
+    if(loginPhoneInput) loginPhoneInput.value = verified.replace(/^\+6/, '');
+  }
+}
+async function verifyLoginCode(){
+  const phoneRaw = document.getElementById('login-phone').value.trim();
+  const code = document.getElementById('login-code').value.trim();
+  const errorEl = document.getElementById('login-error');
+  errorEl.textContent = '';
+  if(!phoneRaw){ errorEl.textContent = t('login.needPhone'); return; }
+  if(!code){ errorEl.textContent = t('login.needCode'); return; }
+  const phone = '+6' + phoneRaw;
+  try{
+    const res = await fetch(BOT_API_BASE + '/api/otp-verify', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ phone, code }),
+    });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok){
+      errorEl.textContent = data.error || t('login.failed');
+      return;
+    }
+    setVerifiedPhone(phone);
+    checkLoginGate();
+  }catch(err){
+    errorEl.textContent = t('login.failed');
+  }
+}
 const STOCK_TEXT = {
   zh:{left:(n)=>`现货 ${n} 件`, out:'暂时缺货'},
   en:{left:(n)=>`${n} in stock`, out:'Out of stock'},
@@ -478,6 +574,7 @@ function updateWaButton(){
 const I18N = {
   zh:{
     nav:{home:'首页',goods:'植萃精选',chatbot:'智能客服服务',track:'物流查询',cart:'购物袋'},
+    login:{title:'先验证一下 WhatsApp 号码',subtitle:'填好手机号后点下面的按钮，会跳转到 WhatsApp 发一条消息，机器人会秒回一个验证码，抄回来这里输入就行。',getCode:'去 WhatsApp 获取验证码',codeLabel:'验证码',verify:'验证',needPhone:'请先填手机号',needCode:'请输入收到的验证码',failed:'验证失败，请检查验证码是否正确，或重新获取'},
     home:{
       kicker:'LUMEE STORE · 植物萃取 生活好物',
       h1:'来自普罗旺斯的植萃呵护，给肌肤最温柔的对待',
@@ -515,6 +612,7 @@ const I18N = {
   },
   en:{
     nav:{home:'Home',goods:'Botanicals',chatbot:'Chatbot Service',track:'Track Order',cart:'Bag'},
+    login:{title:'Verify your WhatsApp number',subtitle:"Enter your number and tap the button below — it'll open WhatsApp with a message. Our bot replies instantly with a code; copy it back here.",getCode:'Get code on WhatsApp',codeLabel:'Verification code',verify:'Verify',needPhone:'Please enter your phone number first',needCode:'Please enter the code you received',failed:'Verification failed — check the code or request a new one'},
     home:{
       kicker:'LUMEE STORE · BOTANICAL LIVING ESSENTIALS',
       h1:'Provence-inspired botanical care, gently tending to your skin',
@@ -552,6 +650,7 @@ const I18N = {
   },
   ms:{
     nav:{home:'Laman Utama',goods:'Produk Tumbuhan',chatbot:'Perkhidmatan Chatbot',track:'Jejak Pesanan',cart:'Beg'},
+    login:{title:'Sahkan nombor WhatsApp anda',subtitle:'Isi nombor telefon dan tekan butang di bawah — WhatsApp akan dibuka dengan mesej sedia. Bot kami akan balas kod dengan segera; salin kod itu ke sini.',getCode:'Dapatkan kod di WhatsApp',codeLabel:'Kod pengesahan',verify:'Sahkan',needPhone:'Sila isi nombor telefon dahulu',needCode:'Sila masukkan kod yang diterima',failed:'Pengesahan gagal — semak kod atau minta kod baharu'},
     home:{
       kicker:'LUMEE STORE · KEPERLUAN HIDUP BERASASKAN TUMBUHAN',
       h1:'Penjagaan tumbuhan berinspirasikan Provence, lembut untuk kulit anda',
@@ -612,6 +711,8 @@ function applyLang(){
   document.getElementById('track-result').innerHTML = `<div class="track-empty">${t('track.empty')}</div>`;
   updateWaButton();
   updateDaigouLink();
+  updateLoginWaLink();
+  checkLoginGate();
 }
 document.querySelectorAll('.lang-btn').forEach(b=>{
   b.addEventListener('click',()=>{
