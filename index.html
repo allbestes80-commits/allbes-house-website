@@ -271,7 +271,8 @@
 
     <div class="field" style="margin-top:18px;">
       <label data-i18n="login.codeLabel"></label>
-      <input id="login-code" type="text" inputmode="numeric" placeholder="123456">
+      <input id="login-code" type="text" inputmode="numeric" maxlength="6" placeholder="123456" oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
+      <small class="login-hint" data-i18n="login.resend" style="display:block;margin-top:6px;opacity:.7;"></small>
     </div>
     <button class="btn-primary" onclick="verifyLoginCode()" data-i18n="login.verify"></button>
     <div class="login-error" id="login-error"></div>
@@ -511,11 +512,12 @@ function checkLoginGate(){
 }
 async function verifyLoginCode(){
   const phoneRaw = document.getElementById('login-phone').value.trim();
-  const code = document.getElementById('login-code').value.trim();
+  const code = document.getElementById('login-code').value.replace(/\D/g,'');
   const errorEl = document.getElementById('login-error');
   errorEl.textContent = '';
   if(!phoneRaw){ errorEl.textContent = t('login.needPhone'); return; }
   if(!code){ errorEl.textContent = t('login.needCode'); return; }
+  if(code.length !== 6){ errorEl.textContent = t('login.codeLength'); return; }
   const phone = '+6' + phoneRaw;
   try{
     const res = await fetch(BOT_API_BASE + '/api/otp-verify', {
@@ -574,7 +576,7 @@ function updateWaButton(){
 const I18N = {
   zh:{
     nav:{home:'首页',goods:'植萃精选',chatbot:'智能客服服务',track:'物流查询',cart:'购物袋'},
-    login:{title:'先验证一下 WhatsApp 号码',subtitle:'填好手机号后点下面的按钮，会跳转到 WhatsApp 发一条消息，机器人会秒回一个验证码，抄回来这里输入就行。',getCode:'去 WhatsApp 获取验证码',codeLabel:'验证码',verify:'验证',needPhone:'请先填手机号',needCode:'请输入收到的验证码',failed:'验证失败，请检查验证码是否正确，或重新获取'},
+    login:{title:'先验证一下 WhatsApp 号码',subtitle:'填好手机号后点下面的按钮，会跳转到 WhatsApp 发一条消息，机器人会秒回一个验证码，抄回来这里输入就行。',getCode:'去 WhatsApp 获取验证码',codeLabel:'验证码',verify:'验证',needPhone:'请先填手机号',needCode:'请输入收到的验证码',codeLength:'验证码是6位数字，请检查后重新输入',resend:'如果重新获取过验证码，请以 WhatsApp 上最新一条为准，旧的验证码会失效',failed:'验证失败，请检查验证码是否正确，或重新获取'},
     home:{
       kicker:'LUMEE STORE · 植物萃取 生活好物',
       h1:'来自普罗旺斯的植萃呵护，给肌肤最温柔的对待',
@@ -612,7 +614,7 @@ const I18N = {
   },
   en:{
     nav:{home:'Home',goods:'Botanicals',chatbot:'Chatbot Service',track:'Track Order',cart:'Bag'},
-    login:{title:'Verify your WhatsApp number',subtitle:"Enter your number and tap the button below — it'll open WhatsApp with a message. Our bot replies instantly with a code; copy it back here.",getCode:'Get code on WhatsApp',codeLabel:'Verification code',verify:'Verify',needPhone:'Please enter your phone number first',needCode:'Please enter the code you received',failed:'Verification failed — check the code or request a new one'},
+    login:{title:'Verify your WhatsApp number',subtitle:"Enter your number and tap the button below — it'll open WhatsApp with a message. Our bot replies instantly with a code; copy it back here.",getCode:'Get code on WhatsApp',codeLabel:'Verification code',verify:'Verify',needPhone:'Please enter your phone number first',needCode:'Please enter the code you received',codeLength:'The code is 6 digits — please check and re-enter',resend:'If you requested a new code, use the latest WhatsApp message — older codes stop working',failed:'Verification failed — check the code or request a new one'},
     home:{
       kicker:'LUMEE STORE · BOTANICAL LIVING ESSENTIALS',
       h1:'Provence-inspired botanical care, gently tending to your skin',
@@ -650,7 +652,7 @@ const I18N = {
   },
   ms:{
     nav:{home:'Laman Utama',goods:'Produk Tumbuhan',chatbot:'Perkhidmatan Chatbot',track:'Jejak Pesanan',cart:'Beg'},
-    login:{title:'Sahkan nombor WhatsApp anda',subtitle:'Isi nombor telefon dan tekan butang di bawah — WhatsApp akan dibuka dengan mesej sedia. Bot kami akan balas kod dengan segera; salin kod itu ke sini.',getCode:'Dapatkan kod di WhatsApp',codeLabel:'Kod pengesahan',verify:'Sahkan',needPhone:'Sila isi nombor telefon dahulu',needCode:'Sila masukkan kod yang diterima',failed:'Pengesahan gagal — semak kod atau minta kod baharu'},
+    login:{title:'Sahkan nombor WhatsApp anda',subtitle:'Isi nombor telefon dan tekan butang di bawah — WhatsApp akan dibuka dengan mesej sedia. Bot kami akan balas kod dengan segera; salin kod itu ke sini.',getCode:'Dapatkan kod di WhatsApp',codeLabel:'Kod pengesahan',verify:'Sahkan',needPhone:'Sila isi nombor telefon dahulu',needCode:'Sila masukkan kod yang diterima',codeLength:'Kod itu 6 digit — sila semak dan masukkan semula',resend:'Jika anda minta kod baharu, guna mesej WhatsApp terkini — kod lama tidak sah lagi',failed:'Pengesahan gagal — semak kod atau minta kod baharu'},
     home:{
       kicker:'LUMEE STORE · KEPERLUAN HIDUP BERASASKAN TUMBUHAN',
       h1:'Penjagaan tumbuhan berinspirasikan Provence, lembut untuk kulit anda',
