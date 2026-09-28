@@ -994,7 +994,7 @@ function checkPaymentReturn(){
   const orderNo = params.get('order_id');
   const status = params.get('status') || params.get('status_id');
   if(!orderNo || !status) return;
-  showPage('goods');
+  showPage('cart');
   const box = document.getElementById('g-confirm');
   box.style.display = 'block';
   const msgKey = status === '1' ? 'paymentSuccess' : (status === '3' ? 'paymentFailed' : 'paymentPending');
