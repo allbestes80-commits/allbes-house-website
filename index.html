@@ -161,6 +161,7 @@
   }
   .phone-field input{border-radius:0 8px 8px 0;}
   .field-hint{font-size:11.5px;color:var(--muted);margin-top:5px;}
+  .shipping-note{font-size:12.5px;color:var(--sage-deep);background:var(--lav-soft);border-radius:8px;padding:9px 12px;margin:-5px 0 15px;line-height:1.5;}
 
   .optin-field{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:var(--muted);margin-bottom:18px;cursor:pointer;}
   .optin-field input{margin-top:2px;flex:none;}
@@ -378,9 +379,11 @@
         <div class="field"><label data-i18n="checkout.address"></label><textarea id="g-address" rows="3" required></textarea></div>
         <div class="row3">
           <div class="field"><label data-i18n="checkout.city"></label><input id="g-city" type="text" required></div>
-          <div class="field"><label data-i18n="checkout.postcode"></label><input id="g-postcode" type="text" inputmode="numeric" required></div>
+          <div class="field"><label data-i18n="checkout.postcode"></label><input id="g-postcode" type="text" inputmode="numeric" required oninput="updateShippingNote()"></div>
           <div class="field"><label data-i18n="checkout.state"></label><input id="g-state" type="text" required></div>
         </div>
+
+        <div class="shipping-note" id="shipping-note"></div>
 
         <div class="field-hint" data-i18n="checkout.payNote"></div>
 
@@ -583,7 +586,7 @@ const I18N = {
       trust3:{b:'专属客服',s:'1 个工作日内联系'},
     },
     goods:{title:'植萃精选',subtitle:'每一件都来自天然植物萃取，加入购物袋即可直接下单结算。',total:'合计',checkout:'去结算',empty:'购物袋是空的，先去挑几件喜欢的吧。',browse:'去挑选商品 →',daigouText:'没有找到想要的商品？我们也提供代购服务，帮您从国外采购，大概 1-2 周到货。',daigouCta:'WhatsApp 联系我们 →'},
-    checkout:{title:'填写收货信息',name:'收货人姓名',phone:'联系电话',phoneHint:'请填写可以联系到的 WhatsApp 号码，例如：0123456789',address:'收货地址',city:'城市',postcode:'邮政编码',state:'州属',payNote:'点击"确认下单"后会跳转到安全的付款页面（支持网银转账/信用卡）完成付款。',optIn:'我同意接收 Lumee Store 通过 WhatsApp 发送的优惠信息（可随时回复"退订"取消）',confirm:'确认下单',redirecting:'正在跳转到付款页面…',payFailed:'生成付款链接失败，请稍后重试',voucherApplied:(amt,bal)=>`💳 已用优惠额度抵扣 RM${amt}（还剩 RM${bal}）`},
+    checkout:{title:'填写收货信息',name:'收货人姓名',phone:'联系电话',phoneHint:'请填写可以联系到的 WhatsApp 号码，例如：0123456789',address:'收货地址',city:'城市',postcode:'邮政编码',state:'州属',payNote:'点击"确认下单"后会跳转到安全的付款页面（支持网银转账/信用卡）完成付款。',optIn:'我同意接收 Lumee Store 通过 WhatsApp 发送的优惠信息（可随时回复"退订"取消）',confirm:'确认下单',redirecting:'正在跳转到付款页面…',payFailed:'生成付款链接失败，请稍后重试',voucherApplied:(amt,bal)=>`💳 已用优惠额度抵扣 RM${amt}（还剩 RM${bal}）`,shippingGeneric:'🚚 西马订单满 RM20 包邮，东马（沙巴/砂拉越/纳闽）满 RM50 包邮',shippingNeedMore:(amt,fee)=>`🚚 还差 RM${amt} 即可包邮（当前运费 RM${fee}）`,shippingFree:'🎉 本单包邮！',shippingFee:(fee)=>`🚚 运费 RM${fee}`},
     chatbot:{title:'智能客服机器人 · 选择套餐',subtitle:'根据接入渠道数量与问答库规模选择，后续可随时升级。'},
     plan:{
       basic:{name:'基础版',li1:'单渠道接入',li2:'最多 50 条问答',li3:'话术调优 1 次'},
@@ -619,7 +622,7 @@ const I18N = {
       trust3:{b:'Dedicated Support',s:'Reply within 1 business day'},
     },
     goods:{title:'Botanical Selection',subtitle:'Every item is derived from natural botanical extracts — add to bag and check out directly.',total:'Total',checkout:'Checkout',empty:'Your bag is empty — pick a few favorites first.',browse:'Browse products →',daigouText:"Can't find what you're looking for? We also offer daigou sourcing — we'll get it from overseas for you, usually within 1-2 weeks.",daigouCta:'Chat with us on WhatsApp →'},
-    checkout:{title:'Shipping Details',name:'Recipient Name',phone:'Phone Number',phoneHint:'Please provide a reachable WhatsApp number, e.g. 0123456789',address:'Delivery Address',city:'City',postcode:'Postcode',state:'State',payNote:'Clicking "Confirm Order" will take you to a secure payment page (online banking/card) to complete payment.',optIn:'I agree to receive promotional messages from Lumee Store via WhatsApp (reply "STOP" anytime to opt out)',confirm:'Confirm Order',redirecting:'Redirecting to payment page…',payFailed:'Failed to create payment link, please try again shortly',voucherApplied:(amt,bal)=>`💳 RM${amt} store credit applied (RM${bal} left)`},
+    checkout:{title:'Shipping Details',name:'Recipient Name',phone:'Phone Number',phoneHint:'Please provide a reachable WhatsApp number, e.g. 0123456789',address:'Delivery Address',city:'City',postcode:'Postcode',state:'State',payNote:'Clicking "Confirm Order" will take you to a secure payment page (online banking/card) to complete payment.',optIn:'I agree to receive promotional messages from Lumee Store via WhatsApp (reply "STOP" anytime to opt out)',confirm:'Confirm Order',redirecting:'Redirecting to payment page…',payFailed:'Failed to create payment link, please try again shortly',voucherApplied:(amt,bal)=>`💳 RM${amt} store credit applied (RM${bal} left)`,shippingGeneric:'🚚 Free shipping on orders RM20+ in West Malaysia, RM50+ in East Malaysia (Sabah/Sarawak/Labuan)',shippingNeedMore:(amt,fee)=>`🚚 Add RM${amt} more for free shipping (current shipping fee: RM${fee})`,shippingFree:'🎉 Free shipping on this order!',shippingFee:(fee)=>`🚚 Shipping fee RM${fee}`},
     chatbot:{title:'AI Customer Service Bot · Choose a Plan',subtitle:'Pick a plan based on channels and FAQ size — upgrade anytime.'},
     plan:{
       basic:{name:'Basic',li1:'1 channel',li2:'Up to 50 FAQs',li3:'1 round of tone tuning'},
@@ -655,7 +658,7 @@ const I18N = {
       trust3:{b:'Sokongan Peribadi',s:'Balasan dalam 1 hari bekerja'},
     },
     goods:{title:'Pilihan Tumbuhan',subtitle:'Setiap produk berasal daripada ekstrak tumbuhan semula jadi — tambah ke beg dan buat pembayaran terus.',total:'Jumlah',checkout:'Ke Pembayaran',empty:'Beg anda kosong — pilih beberapa produk kegemaran dahulu.',browse:'Lihat produk →',daigouText:'Tidak jumpa produk yang dicari? Kami juga sediakan perkhidmatan daigou — kami bantu dapatkan dari luar negara, biasanya dalam 1-2 minggu.',daigouCta:'Hubungi kami di WhatsApp →'},
-    checkout:{title:'Butiran Penghantaran',name:'Nama Penerima',phone:'Nombor Telefon',phoneHint:'Sila isikan nombor WhatsApp yang boleh dihubungi, contohnya: 0123456789',address:'Alamat Penghantaran',city:'Bandar',postcode:'Poskod',state:'Negeri',payNote:'Selepas klik "Sahkan Pesanan", anda akan dibawa ke halaman pembayaran selamat (perbankan dalam talian/kad) untuk selesaikan pembayaran.',optIn:'Saya bersetuju menerima mesej promosi daripada Lumee Store melalui WhatsApp (balas "STOP" untuk berhenti langgan bila-bila masa)',confirm:'Sahkan Pesanan',redirecting:'Mengalihkan ke halaman pembayaran…',payFailed:'Gagal menjana pautan pembayaran, sila cuba sebentar lagi',voucherApplied:(amt,bal)=>`💳 Kredit RM${amt} digunakan (baki RM${bal})`},
+    checkout:{title:'Butiran Penghantaran',name:'Nama Penerima',phone:'Nombor Telefon',phoneHint:'Sila isikan nombor WhatsApp yang boleh dihubungi, contohnya: 0123456789',address:'Alamat Penghantaran',city:'Bandar',postcode:'Poskod',state:'Negeri',payNote:'Selepas klik "Sahkan Pesanan", anda akan dibawa ke halaman pembayaran selamat (perbankan dalam talian/kad) untuk selesaikan pembayaran.',optIn:'Saya bersetuju menerima mesej promosi daripada Lumee Store melalui WhatsApp (balas "STOP" untuk berhenti langgan bila-bila masa)',confirm:'Sahkan Pesanan',redirecting:'Mengalihkan ke halaman pembayaran…',payFailed:'Gagal menjana pautan pembayaran, sila cuba sebentar lagi',voucherApplied:(amt,bal)=>`💳 Kredit RM${amt} digunakan (baki RM${bal})`,shippingGeneric:'🚚 Penghantaran percuma untuk pesanan RM20+ di Semenanjung, RM50+ di Sabah/Sarawak/Labuan',shippingNeedMore:(amt,fee)=>`🚚 Tambah RM${amt} lagi untuk penghantaran percuma (kos penghantaran semasa: RM${fee})`,shippingFree:'🎉 Penghantaran percuma untuk pesanan ini!',shippingFee:(fee)=>`🚚 Kos penghantaran RM${fee}`},
     chatbot:{title:'Bot Khidmat Pelanggan AI · Pilih Pelan',subtitle:'Pilih berdasarkan bilangan saluran dan saiz soalan lazim — boleh dinaik taraf kemudian.'},
     plan:{
       basic:{name:'Asas',li1:'1 saluran',li2:'Sehingga 50 soalan lazim',li3:'1 pusingan penambahbaikan nada'},
@@ -909,6 +912,28 @@ function removeFromCart(i){
   cart.splice(i,1);
   renderCart();
 }
+/* ---------- shipping fee: West RM20+ free (else RM6), East (Sabah/Sarawak/Labuan) RM50+ free (else RM15) ---------- */
+const SHIPPING_RULES = { west:{fee:6,freeAt:20}, east:{fee:15,freeAt:50} };
+function isEastMalaysiaPostcode(pc){
+  const p = parseInt(String(pc||'').replace(/\D/g,'').slice(0,2),10);
+  return p===87 || (p>=88&&p<=91) || (p>=93&&p<=98);
+}
+function computeShipping(subtotal, postcode){
+  const east = isEastMalaysiaPostcode(postcode);
+  const rule = east ? SHIPPING_RULES.east : SHIPPING_RULES.west;
+  const fee = subtotal>=rule.freeAt ? 0 : rule.fee;
+  return { fee, freeAt:rule.freeAt, east };
+}
+function updateShippingNote(){
+  const note = document.getElementById('shipping-note');
+  if(!note) return;
+  const subtotal = cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const postcode = (document.getElementById('g-postcode')||{}).value || '';
+  if(subtotal<=0){ note.textContent=''; return; }
+  if(postcode.replace(/\D/g,'').length<4){ note.textContent = t('checkout.shippingGeneric'); return; }
+  const { fee, freeAt } = computeShipping(subtotal, postcode);
+  note.textContent = fee===0 ? t('checkout.shippingFree') : t('checkout.shippingNeedMore')(freeAt-subtotal, fee);
+}
 function renderCart(){
   saveCartToStorage();
   const box = document.getElementById('cart-items');
@@ -937,6 +962,7 @@ function renderCart(){
   countEl.textContent = count;
   const countEl2 = document.getElementById('cart-count-2');
   if(countEl2) countEl2.textContent = count;
+  updateShippingNote();
 }
 /* ---------- orders store (in-memory demo) ---------- */
 const orders = {
@@ -971,7 +997,7 @@ async function submitGoodsOrder(){
     const res = await fetch(BOT_API_BASE + '/api/create-payment', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name, phone, address, items: itemsText, total, lang }),
+      body: JSON.stringify({ name, phone, address, items: itemsText, total, lang, postcode }),
     });
     const data = await res.json().catch(()=>({}));
     if(!res.ok || !data.paymentUrl){
@@ -984,6 +1010,7 @@ async function submitGoodsOrder(){
     const extras = [];
     if(data.gift) extras.push('🎁 ' + data.gift);
     if(data.voucherDeducted) extras.push(t('checkout.voucherApplied')(data.voucherDeducted, data.voucherBalanceAfter));
+    if(typeof data.shippingFee === 'number') extras.push(data.shippingFee>0 ? t('checkout.shippingFee')(data.shippingFee) : t('checkout.shippingFree'));
     if(extras.length){
       btn.textContent = extras.join(' · ');
       await new Promise(r => setTimeout(r, 1800));
