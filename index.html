@@ -298,8 +298,8 @@
     </div>
     <div class="nav-right">
       <div class="lang-switch">
-        <button class="lang-btn active" data-lang="zh">中文</button>
-        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="zh">中文</button>
+        <button class="lang-btn active" data-lang="en">EN</button>
         <button class="lang-btn" data-lang="ms">BM</button>
       </div>
       <button class="cart-btn" onclick="showPage('cart')"><span data-i18n="nav.cart"></span> (<span id="cart-count">0</span>)</button>
@@ -681,7 +681,7 @@ const I18N = {
     unfilled:'(belum diisi)',
   },
 };
-let lang = 'zh';
+let lang = 'en';
 
 function t(path){
   return path.split('.').reduce((o,k)=>o&&o[k], I18N[lang]);
